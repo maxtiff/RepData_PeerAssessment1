@@ -1,5 +1,8 @@
 #### Loading and preprocessing the data
- 
+
+# i. Source libraries, functions, etc.
+  library(ggplot2)
+
 # 1. Load the data (i.e. `read.csv()`)
 
   ## Unzip activity file.
@@ -30,9 +33,9 @@
   
 # 2. Calculate and report the **mean** and **median** total number of steps taken per day
   meanSteps <- mean(activityDay$totalSteps)
-  print(paste("Mean total number of steps: ",meanSteps))
+  print(paste("Mean total number of steps per day: ",meanSteps))
   medianSteps <- median(activityDay$totalSteps)
-  print(paste("Median total number of steps: ",medianSteps))
+  print(paste("Median total number of steps per day: ",medianSteps))
   
   
 #### What is the average daily activity pattern?
@@ -43,13 +46,15 @@
   activityInterval <- aggregate(activityRemoveNA$steps, by=list(activityRemoveNA$interval),mean)
   colnames(activityInterval) <- c('interval','averageSteps')
   
-  png(filename="meanSteps.png", width=480, height=480)
-  plot(activityInterval$interval,activityInterval$averageSteps, type="l", main = "Average Number of Steps Per Interval",col="red",xlab="Interval", ylab="Steps")
-  dev.off()
+  ## Plot time series graph of average number of steps taken per interval across all days.
+  g <- ggplot(activityInterval, aes(interval, averageSteps))
+  g + geom_line(aes( y = averageSteps ), colour="#368BC1",size = 1) + xlab("Interval") + ylab("Average Steps") + ggtitle("Average Number of Steps Per Interval")
+  ggsave(filename="meanSteps.png", width=4.80, height=4.80, dpi = 100)
   
 # 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-  activityInterval[max(activityInterval$averageSteps),]
-  
+  maxMeanInterval <- activityInterval[max(activityInterval$averageSteps),]
+  print(paste("Interval",maxMeanInterval$interval,"has the most average steps with",maxMeanInterval$averageSteps,sep=" "))
+
   
 #### Imputing missing values
 
@@ -58,7 +63,9 @@
 # bias into some calculations or summaries of the data.
   
 # 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with `NA`s)
-  sum(is.na(activityRaw$steps))
+  missings <- is.na(activityRaw)
+  sumMissings <- sum(missings)
+  print(paste("There are",sumMissings,"rows with missing observations.", sep=" "))
  
 # 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. 
 #    For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
