@@ -13,6 +13,7 @@
   ## Read in data file, retain 'NA' values
   activityRaw <- read.csv(activityFile)
   
+  
 # 2. Process/transform the data (if necessary) into a format suitable for your analysis
   
   ## Create dataset without 'NA' values.
@@ -24,6 +25,7 @@
   activityDay$date <- as.Date(activityDay$date)
   
   
+  
 #### What is mean total number of steps taken per day?
   
 # 1. Make a histogram of the total number of steps taken each day
@@ -31,11 +33,13 @@
   hist(activityDay$totalSteps, main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
   dev.off()
   
+  
 # 2. Calculate and report the **mean** and **median** total number of steps taken per day
   meanSteps <- mean(activityDay$totalSteps)
   print(paste("Mean total number of steps per day: ",meanSteps))
   medianSteps <- median(activityDay$totalSteps)
   print(paste("Median total number of steps per day: ",medianSteps))
+  
   
   
 #### What is the average daily activity pattern?
@@ -51,10 +55,12 @@
   g + geom_line(aes( y = averageSteps ), colour="#368BC1",size = 1) + xlab("Interval") + ylab("Average Steps") + ggtitle("Average Number of Steps Per Interval")
   ggsave(filename="meanSteps.png", width=4.80, height=4.80, dpi = 100)
   
+  
 # 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
   maxMeanInterval <- activityInterval[max(activityInterval$averageSteps),]
   print(paste("Interval",maxMeanInterval$interval,"has the most average steps with",maxMeanInterval$averageSteps,sep=" "))
 
+  
   
 #### Imputing missing values
 
@@ -67,17 +73,43 @@
   sumMissings <- sum(missings)
   print(paste("There are",sumMissings,"rows with missing observations.", sep=" "))
  
+  
 # 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. 
 #    For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
   
+  # Merge the activityRaw and activityInterval data frames
+  activityMerge <- merge(activityRaw, activityInterval)
+  
+  # Order merge data by date, and then interval.
+  activityMerge <- activityMerge[order(activityMerge$date,activityMerge$interval),]
+  
+  # replace NA values with the corresponding average steps per interval.
+  activityMerge$steps[is.na(activityMerge$steps)] <- activityMerge$averageSteps[is.na(activityMerge$steps)]
+  
   
 # 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
-   
+  activityComplete <- subset(activityMerge, select = c("steps","date", "interval") )
+  activityComplete$steps <- round(activityComplete$steps,0)
+  
+  
 # 4. Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total 
 #    number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? 
 #    What is the impact of imputing missing data on the estimates of the total daily number of steps?
+  activityDayComplete <- aggregate(activityComplete$steps,by=list(activityComplete$date),sum)
+  colnames(activityDayComplete) <- c('date','totalSteps')
+  activityDayComplete$date <- as.Date(activityDayComplete$date)
+  
+  png(filename="totalStepsComplete.png", width=480, height=480)
+  hist(activityDayComplete$totalSteps, main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
+  dev.off()
+  
+  meanStepsComplete <- mean(activityDayComplete$totalSteps)
+  print(paste("Mean total number of steps per day: ",meanStepsComplete))
+  medianStepsComplete <- median(activityDayComplete$totalSteps)
+  print(paste("Median total number of steps per day: ",medianStepsComplete))
+  
 
-
+  
 #### Are there differences in activity patterns between weekdays and weekends?
   
 #   For this part the `weekdays()` function may be of some help here. Use
