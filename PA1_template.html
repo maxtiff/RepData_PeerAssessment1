@@ -243,6 +243,11 @@ bias into some calculations or summaries of the data.</p>
 
 <p>Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with <code>NA</code>s)</p>
 
+<pre><code class="r"># Check number of missing observations in original data set.
+missings &lt;- is.na(activityRaw)
+sum(missings)
+</code></pre>
+
 <pre><code>## [1] 2304
 </code></pre>
 

@@ -72,7 +72,8 @@ values (coded as `NA`). The presence of missing days may introduce
 bias into some calculations or summaries of the data.
 
 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with `NA`s)
-```{r echo=FALSE}
+```{r}
+# Check number of missing observations in original data set.
 missings <- is.na(activityRaw)
 sum(missings)
 ```
