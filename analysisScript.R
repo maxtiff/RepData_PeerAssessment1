@@ -2,6 +2,7 @@
 
 # i. Source libraries, functions, etc.
   library(ggplot2)
+  library(lattice)
 
 # 1. Load the data (i.e. `read.csv()`)
 
@@ -116,7 +117,8 @@
 #   the dataset with the filled-in missing values for this part.
    
 # 1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
-  activityComplete$day <- weekdays(as.Date(activityComplete$date),)
+  activityComplete$day <- factor(ifelse(as.POSIXlt(activityComplete$date)$wday %% 6 == 0, "Weekend", "Weekday"))
+
   
 # 2. Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, 
 #    averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was creating using **simulated data**:
