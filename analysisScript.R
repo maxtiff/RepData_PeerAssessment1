@@ -1,7 +1,6 @@
 #### Loading and preprocessing the data
 
 # i. Source libraries, functions, etc.
-  library(ggplot2)
   library(lattice)
 
 # 1. Load the data (i.e. `read.csv()`)
@@ -30,19 +29,14 @@
 #### What is mean total number of steps taken per day?
   
 # 1. Make a histogram of the total number of steps taken each day
-#   png(filename="totalSteps.png", width=480, height=480)
-#   hist(activityDay$totalSteps, main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
-#   dev.off()
-  
   histogram(activityDay$totalSteps,main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
   
   
 # 2. Calculate and report the **mean** and **median** total number of steps taken per day
-  meanSteps <- mean(activityDay$totalSteps)
-  print(paste("Mean total number of steps per day: ",meanSteps))
-  medianSteps <- median(activityDay$totalSteps)
-  print(paste("Median total number of steps per day: ",medianSteps))
+  mean(activityDay$totalSteps)
   
+  median(activityDay$totalSteps)
+
   
   
 #### What is the average daily activity pattern?
@@ -54,14 +48,10 @@
   colnames(activityInterval) <- c('interval','averageSteps')
   
   ## Plot time series graph of average number of steps taken per interval across all days.
-#   g <- ggplot(activityInterval, aes(interval, averageSteps))
-#   g + geom_line(aes( y = averageSteps ), colour="#368BC1",size = 1) + xlab("Interval") + ylab("Average Steps") + ggtitle("Average Number of Steps Per Interval")
-#   ggsave(filename="meanSteps.png", width=4.80, height=4.80, dpi = 100)
   xyplot(averageSteps ~ interval, data = activityInterval, type = "l", ylab="Average Steps", xlab="Interval", main="Average Steps Taken per 5-Minute Interval")
   
 # 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-  maxMeanInterval <- activityInterval[max(activityInterval$averageSteps),]
-  print(paste("Interval",maxMeanInterval$interval,"has the most average steps with",maxMeanInterval$averageSteps,sep=" "))
+  activityInterval[max(activityInterval$averageSteps),]
 
   
   
@@ -73,8 +63,7 @@
   
 # 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with `NA`s)
   missings <- is.na(activityRaw)
-  sumMissings <- sum(missings)
-  print(paste("There are",sumMissings,"rows with missing observations.", sep=" "))
+  sum(missings)
  
   
 # 2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. 
@@ -91,27 +80,24 @@
   
   
 # 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
-  activityComplete <- subset(activityMerge, select = c("steps","date", "interval") )
-  activityComplete$steps <- round(activityComplete$steps,0)
+  activityImputed <- subset(activityMerge, select = c("steps","date", "interval") )
+  activityImputed$steps <- round(activityImputed$steps,0)
   
   
 # 4. Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total 
 #    number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? 
 #    What is the impact of imputing missing data on the estimates of the total daily number of steps?
-  activityDayComplete <- aggregate(activityComplete$steps,by=list(activityComplete$date),sum)
-  colnames(activityDayComplete) <- c('date','totalSteps')
-  activityDayComplete$date <- as.Date(activityDayComplete$date)
   
-#   png(filename="totalStepsComplete.png", width=480, height=480)
-#   hist(activityDayComplete$totalSteps, main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
-#   dev.off()
+  #Aggregate imputed data
+  activityDayImputed <- aggregate(activityImputed$steps,by=list(activityImputed$date),sum)
+  colnames(activityDayImputed) <- c('date','totalSteps')
+  activityDayImputed$date <- as.Date(activityDayImputed$date)
   
-  histogram(activityDayComplete$totalSteps,main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
+  histogram(activityDayImputed$totalSteps,main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
   
-  meanStepsComplete <- mean(activityDayComplete$totalSteps)
-  print(paste("Mean total number of steps per day: ",meanStepsComplete))
-  medianStepsComplete <- median(activityDayComplete$totalSteps)
-  print(paste("Median total number of steps per day: ",medianStepsComplete))
+  mean(activityDayImputed$totalSteps)
+  
+  median(activityDayImputed$totalSteps)
   
 
   
@@ -121,7 +107,7 @@
 #   the dataset with the filled-in missing values for this part.
    
 # 1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
-  activityComplete$day <- factor(ifelse(as.POSIXlt(activityComplete$date)$wday %% 6 == 0, "Weekend", "Weekday"))
+  activityImputed$day <- factor(ifelse(as.POSIXlt(activityImputed$date)$wday %% 6 == 0, "Weekend", "Weekday"))
 
 
   
@@ -129,9 +115,9 @@
 #    averaged across all weekday days or weekend days (y-axis). 
   
   # Aggregate data by average per interval by day.
-  activityCompleteInterval <- aggregate(activityComplete$steps, by=list(activityComplete$interval,activityComplete$day),mean)
-  names(activityCompleteInterval) <- c("interval", "day", "averageSteps")
+  activityImputedInterval <- aggregate(activityImputed$steps, by=list(activityImputed$interval,activityImputed$day),mean)
+  names(activityImputedInterval) <- c("interval", "day", "averageSteps")
   
   # Plot in time series via lattice plotting system.
-  xyplot(averageSteps ~ interval | day, data = activityCompleteInterval, layout = c(1, 2), type = "l", ylab="Average Steps", xlab="Interval", main="Average Steps Taken per 5-Minute Interval; Weekday vs. Weekend")
+  xyplot(averageSteps ~ interval | day, data = activityImputedInterval, layout = c(1, 2), type = "l", ylab="Average Steps", xlab="Interval", main="Average Steps Taken per 5-Minute Interval; Weekday vs. Weekend")
   
