@@ -94,6 +94,7 @@ activityImputed$steps <- round(activityImputed$steps,0)
 Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 <img src="figure/unnamed-chunk-11.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto auto auto 0;" />
+
 **Mean** total number of steps taken per day.
 
 ```
