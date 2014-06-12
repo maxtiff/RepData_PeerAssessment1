@@ -4,8 +4,8 @@
 ## Loading and preprocessing the data
 
 Load the data (i.e. `read.csv()`)
-```{r}
 
+```r
   ## Unzip activity file.
   zipFilename <- "activity.zip"
   zipPath <- file.path(zipFilename)
@@ -13,12 +13,11 @@ Load the data (i.e. `read.csv()`)
   
   ## Read in data file, retain 'NA' values
   activityRaw <- read.csv(activityFile)
-
 ```
 
 Process/transform the data (if necessary) into a format suitable for your analysis
-```{r}
 
+```r
   ## Create dataset without 'NA' values.
   activityRemoveNA <- na.omit(activityRaw)
   
@@ -26,43 +25,36 @@ Process/transform the data (if necessary) into a format suitable for your analys
   activityDay <- aggregate(activityRemoveNA$steps,by=list(activityRemoveNA$date),sum)
   colnames(activityDay) <- c('date','totalSteps')
   activityDay$date <- as.Date(activityDay$date)
-
 ```
 ## What is mean total number of steps taken per day?
 
 Make a histogram of the total number of steps taken each day
-```{r fig.width = 7, fig.height = 6, echo=FALSE,  fig.align='left'}
-library(lattice)
-
-histogram(activityDay$totalSteps,main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
-
-```
+<img src="figure/unnamed-chunk-3.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto auto auto 0;" />
 
 Calculate and report the **mean** and **median** total number of steps taken per day
 
 a) **Mean** total number of steps taken per day.
-```{r echo=FALSE}
-mean(activityDay$totalSteps)
+
+```
+## [1] 10766
 ```
 
 b) **Median** total number of steps taken per day.
-```{r echo=FALSE}
-median(activityDay$totalSteps)
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
 
 Make a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
-```{r fig.width=7, fig.height=6, echo=FALSE,  fig.align='left'}
-activityInterval <- aggregate(activityRemoveNA$steps, by=list(activityRemoveNA$interval),mean)
-colnames(activityInterval) <- c('interval','averageSteps')
-
-xyplot(averageSteps ~ interval, data = activityInterval, type = "l", ylab="Average Steps", xlab="Interval", main="Average Steps Taken per 5-Minute Interval")
-```
+<img src="figure/unnamed-chunk-6.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto auto auto 0;" />
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r echo=FALSE}
-activityInterval[max(activityInterval$averageSteps),]
+
+```
+##     interval averageSteps
+## 206     1705         56.3
 ```
 
 ## Imputing missing values
@@ -72,13 +64,14 @@ values (coded as `NA`). The presence of missing days may introduce
 bias into some calculations or summaries of the data.
 
 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with `NA`s)
-```{r echo=FALSE}
-missings <- is.na(activityRaw)
-sum(missings)
+
+```
+## [1] 2304
 ```
 
 Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
-```{r}
+
+```r
 # Merge the raw activity data (with NAs) and average steps per interval data frames.
 activityMerge <- merge(activityRaw, activityInterval)
   
@@ -90,26 +83,23 @@ activityMerge$steps[is.na(activityMerge$steps)] <- activityMerge$averageSteps[is
 ```
 
 Create a new dataset that is equal to the original dataset but with the missing data filled in.
-```{r}
+
+```r
 activityImputed <- subset(activityMerge, select = c("steps","date", "interval") )
 activityImputed$steps <- round(activityImputed$steps,0)
 ```
 
 Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
-```{r fig.width=7, fig.height=6, echo=FALSE,  fig.align='left'}
-activityDayImputed <- aggregate(activityImputed$steps,by=list(activityImputed$date),sum)
-colnames(activityDayImputed) <- c('date','totalSteps')
-activityDayImputed$date <- as.Date(activityDayImputed$date)
-  
-histogram(activityDayImputed$totalSteps,main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
-```
+<img src="figure/unnamed-chunk-11.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto auto auto 0;" />
 **Mean** total number of steps taken per day.
-```{r echo=FALSE}
-mean(activityDayImputed$totalSteps)
+
+```
+## [1] 10766
 ```
 **Median** total number of steps taken per day.
-```{r echo=FALSE}
-median(activityDayImputed$totalSteps)
+
+```
+## [1] 10762
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -117,15 +107,9 @@ median(activityDayImputed$totalSteps)
 Use the dataset with the filled-in missing values for this part.
 
 Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
-```{r}
+
+```r
 activityImputed$day <- factor(ifelse(as.POSIXlt(activityImputed$date)$wday %% 6 == 0, "Weekend", "Weekday"))
 ```
 Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
-```{r fig.width=7, fig.height=6, echo=FALSE, fig.align='left'}
-# Aggregate data by average per interval by day.
-activityImputedInterval <- aggregate(activityImputed$steps, by=list(activityImputed$interval,activityImputed$day),mean)
-names(activityImputedInterval) <- c("interval", "day", "averageSteps")
-  
-
-xyplot(averageSteps ~ interval | day, data = activityImputedInterval, layout = c(1, 2), type = "l", ylab="Average Steps", xlab="Interval", main="Average Steps Taken per 5-Minute Interval; Weekday vs. Weekend")
-```
+<img src="figure/unnamed-chunk-15.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" style="display: block; margin: auto auto auto 0;" />
