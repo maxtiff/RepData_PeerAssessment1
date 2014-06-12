@@ -30,9 +30,11 @@
 #### What is mean total number of steps taken per day?
   
 # 1. Make a histogram of the total number of steps taken each day
-  png(filename="totalSteps.png", width=480, height=480)
-  hist(activityDay$totalSteps, main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
-  dev.off()
+#   png(filename="totalSteps.png", width=480, height=480)
+#   hist(activityDay$totalSteps, main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
+#   dev.off()
+  
+  histogram(activityDay$totalSteps,main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
   
   
 # 2. Calculate and report the **mean** and **median** total number of steps taken per day
@@ -52,10 +54,10 @@
   colnames(activityInterval) <- c('interval','averageSteps')
   
   ## Plot time series graph of average number of steps taken per interval across all days.
-  g <- ggplot(activityInterval, aes(interval, averageSteps))
-  g + geom_line(aes( y = averageSteps ), colour="#368BC1",size = 1) + xlab("Interval") + ylab("Average Steps") + ggtitle("Average Number of Steps Per Interval")
-  ggsave(filename="meanSteps.png", width=4.80, height=4.80, dpi = 100)
-  
+#   g <- ggplot(activityInterval, aes(interval, averageSteps))
+#   g + geom_line(aes( y = averageSteps ), colour="#368BC1",size = 1) + xlab("Interval") + ylab("Average Steps") + ggtitle("Average Number of Steps Per Interval")
+#   ggsave(filename="meanSteps.png", width=4.80, height=4.80, dpi = 100)
+  xyplot(averageSteps ~ interval, data = activityInterval, type = "l", ylab="Average Steps", xlab="Interval", main="Average Steps Taken per 5-Minute Interval")
   
 # 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
   maxMeanInterval <- activityInterval[max(activityInterval$averageSteps),]
@@ -100,9 +102,11 @@
   colnames(activityDayComplete) <- c('date','totalSteps')
   activityDayComplete$date <- as.Date(activityDayComplete$date)
   
-  png(filename="totalStepsComplete.png", width=480, height=480)
-  hist(activityDayComplete$totalSteps, main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
-  dev.off()
+#   png(filename="totalStepsComplete.png", width=480, height=480)
+#   hist(activityDayComplete$totalSteps, main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
+#   dev.off()
+  
+  histogram(activityDayComplete$totalSteps,main = "Steps Per Day",col="red",xlab="Steps", ylab="Frequency",breaks=10)
   
   meanStepsComplete <- mean(activityDayComplete$totalSteps)
   print(paste("Mean total number of steps per day: ",meanStepsComplete))
@@ -119,8 +123,15 @@
 # 1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
   activityComplete$day <- factor(ifelse(as.POSIXlt(activityComplete$date)$wday %% 6 == 0, "Weekend", "Weekday"))
 
+
   
 # 2. Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, 
 #    averaged across all weekday days or weekend days (y-axis). 
-  xyplot(steps ~ interval | day, data = activityComplete, layout = c(1, 2), type = "l")
+  
+  # Aggregate data by average per interval by day.
+  activityCompleteInterval <- aggregate(activityComplete$steps, by=list(activityComplete$interval,activityComplete$day),mean)
+  names(activityCompleteInterval) <- c("interval", "day", "averageSteps")
+  
+  # Plot in time series via lattice plotting system.
+  xyplot(averageSteps ~ interval | day, data = activityCompleteInterval, layout = c(1, 2), type = "l", ylab="Average Steps", xlab="Interval", main="Average Steps Taken per 5-Minute Interval; Weekday vs. Weekend")
   
