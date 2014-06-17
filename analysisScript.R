@@ -51,7 +51,7 @@
   xyplot(averageSteps ~ interval, data = activityInterval, type = "l", ylab="Average Steps", xlab="Interval", main="Average Steps Taken per 5-Minute Interval")
   
 # 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-  activityInterval[max(activityInterval$averageSteps),]
+  activityInterval[which.max(activityInterval$averageSteps),]
 
   
   
